@@ -1,0 +1,61 @@
+{
+  "packId": "schweiz-mythen",
+  "routeId": "dorf-demo",
+  "title": "Dorfgeschichte",
+
+  "intro": "Fünf Orte im Dorf. An jedem wartet eine Geschichte, die fast alle kennen – und die fast nie so passiert ist.\n\nDu brauchst etwa zwei Stunden, gute Schuhe und Augen, die genau hinschauen. Gelaufen wird zwischen den Orten je gut zehn Minuten.\n\nDein Fortschritt bleibt auf diesem Gerät. Bleibe in dem Browser, in dem du gestartet hast.",
+
+  "startPrompt": "Auf deiner Startkarte steht ein Wort. Tippe es ein.",
+
+  "stations": {
+    "s1": {
+      "ort": "Der Schwur, den niemand gehört hat",
+      "geschichte": "Drei Männer, eine Wiese, ein Schwur im Morgengrauen: so beginnt die Schweiz in jedem Schulbuch. Nur hat niemand, der damals lebte, davon berichtet. Die Erzählung taucht erst im 15. Jahrhundert auf, rund zweihundert Jahre nach dem angeblichen Ereignis. Berühmt machte sie **Friedrich Schiller** – ein Deutscher, der die Schweiz nie besucht hat, 1804.\n\nDer Rütlischwur ist damit kein Ereignis, sondern ein Text. Das macht ihn nicht wertlos. Es macht ihn zu etwas anderem, als er zu sein behauptet.",
+      "raetsel": "Gehe zu [ORT 2 BESCHREIBEN, OHNE NAMEN ZU NENNEN]. Dort steht eine Jahreszahl im Stein. Sie gehört zu einem Datum, das in der Geschichte des Rütlischwurs oft genannt wird.",
+      "richtung": "Vom Dorfplatz [Richtung] die [Strasse] hinunter, an [Landmarke] vorbei, etwa 800 m. Rund 10 Minuten.",
+      "tipp": "Die Zahl beginnt mit 13 und ist vierstellig.",
+      "fragment": "C (3)"
+    },
+
+    "s2": {
+      "ort": "Der Held, der nie gelebt hat",
+      "geschichte": "Der Apfel, der Pfeil, der Tyrann: Wilhelm Tell ist der bekannteste Schweizer, den es nie gegeben hat. Der erste Beleg stammt von 1470, aus dem **Weissen Buch von Sarnen**. Kein Dokument davor kennt ihn. Dafür kennt Dänemark eine fast gleiche Geschichte, Jahrhunderte älter: ein Bogenschütze namens Toko, ein König, ein Apfel auf dem Kopf eines Kindes.\n\nDie Schweiz hat sich ihren Nationalhelden nicht ausgedacht. Sie hat ihn importiert.",
+      "raetsel": "Gehe zu [ORT 3 BESCHREIBEN]. Suche dort die Jahreszahl, die als Gründungsjahr der Schweiz gilt.",
+      "richtung": "[Richtung], zuerst an [Landmarke] vorbei, dann [Beschreibung], etwa 900 m. Rund 12 Minuten.",
+      "tipp": "Die Zahl steht auf der Tafel und beginnt mit 12.",
+      "fragment": "T (5)"
+    },
+
+    "s3": {
+      "ort": "Die Urkunde, die kein Land gründet",
+      "geschichte": "Der Bundesbrief von 1291 hängt heute hinter Panzerglas. Er gilt als Geburtsurkunde der Schweiz. Liest man ihn, findet man etwas Nüchterneres: ein Bündnis dreier Talschaften gegen Raub, Mord und fremde Richter. Ein Vertrag über Sicherheit, kein Staat, keine Nation, kein Wort von Freiheit im heutigen Sinn.\n\nZum Gründungsdatum wurde 1291 erst **1891**, als die Schweiz eine 600-Jahr-Feier brauchte. Der Geburtstag wurde nicht entdeckt, sondern beschlossen.",
+      "raetsel": "Gehe zu [ORT 4 BESCHREIBEN]. Dort steht eine Jahreszahl aus dem 18. Jahrhundert – aus dem Jahr, in dem französische Truppen in die Eidgenossenschaft einmarschierten.",
+      "richtung": "[Richtung], etwa 700 m. Rund 9 Minuten.",
+      "tipp": "Vierstellig, beginnt mit 17.",
+      "fragment": "M (1)"
+    },
+
+    "s4": {
+      "ort": "Die Freiheit von aussen",
+      "geschichte": "1798 marschierte Napoleons Armee ein und ersetzte die alte Eidgenossenschaft durch die **Helvetische Republik**. Sie brachte, was heute selbstverständlich klingt: Gleichheit vor dem Gesetz, Glaubensfreiheit, Abschaffung der Untertanengebiete.\n\nUnd sie brachte es als Besatzungsmacht. Verordnet, nicht erkämpft. Die Republik hielt fünf Jahre, scheiterte an Aufständen und leeren Kassen – und trotzdem lässt sich die moderne Schweiz ohne sie nicht erklären. Fortschritt kann von der falschen Seite kommen.",
+      "raetsel": "Gehe zu [ORT 5 BESCHREIBEN]. Dort findest du die Jahreszahl eines Kongresses, an dem in Wien über Europa entschieden wurde – und über die Schweiz.",
+      "richtung": "[Richtung], zuletzt [Beschreibung, z.B. bergauf], etwa 1 km. Rund 14 Minuten.",
+      "tipp": "Vierstellig, beginnt mit 18.",
+      "fragment": "H (4)"
+    },
+
+    "s5": {
+      "ort": "Die Neutralität, die verhandelt wurde",
+      "geschichte": "Vor 1815 führte die Eidgenossenschaft Krieg wie alle anderen: Morgarten, Sempach, Marignano, der Bauernkrieg, und über Jahrhunderte vermietete sie ihre Söhne als Söldner an halb Europa.\n\nDie Neutralität ist keine alte Tugend, sondern ein Ergebnis des **Wiener Kongresses**. Die Grossmächte fanden einen neutralen Pufferstaat in den Alpen nützlich. Die Schweiz hat ihre Neutralität nicht erfunden – sie hat sie zugesprochen bekommen und dann zu ihrer Identität gemacht.\n\nFünf Orte, fünf Erzählungen. Keine war eine Lüge. Jede war eine Auswahl.",
+      "raetsel": "Du bist am Ziel. Bleib hier stehen und schau auf deine fünf Bruchstücke.",
+      "richtung": "",
+      "tipp": "Jedes Bruchstück hat einen Buchstaben und eine Zahl. Die Zahl ist die Position.",
+      "fragment": "A (2)",
+      "finalFrage": "Ordne die fünf Buchstaben nach ihren Zahlen. Das Wort, das entsteht, ist die Antwort auf die Frage: Wer entscheidet, welche Geschichte erzählt wird?"
+    }
+  },
+
+  "finale": {
+    "text": "**Macht.**\n\nNicht die Vergangenheit entscheidet, welche Geschichte erzählt wird, sondern die Gegenwart, die sie braucht. Ein Schwur wird erfunden, wenn ein Land Einheit braucht. Ein Geburtstag wird festgelegt, wenn eine Feier fällig ist. Eine Neutralität wird zur Tugend, wenn sie nützlich ist.\n\nDas heisst nicht, dass Geschichte beliebig ist. Es heisst, dass man fragen muss, wer erzählt – und warum jetzt.\n\nDu hast alle fünf Orte gefunden. Zeig diesen Bildschirm der Spielleitung für deine Urkunde."
+  }
+}

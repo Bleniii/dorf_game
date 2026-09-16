@@ -1,0 +1,6 @@
+# Klartext-Quellen: enthalten alle Lösungswörter und Texte.
+# Nur die verschlüsselte data/game.json darf veröffentlicht werden.
+content/*.json
+!content/*.example.json
+Beispiel_Content/
+Readignore.md

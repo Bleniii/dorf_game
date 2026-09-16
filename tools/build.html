@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spiel bauen</title>
+<style>
+  body { font: 16px/1.55 system-ui, sans-serif; max-width: 52rem;
+         margin: 0 auto; padding: 1.5rem 1rem 4rem; color: #191b18; }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.1rem; margin-top: 2rem; }
+  fieldset { border: 1px solid #ccd; padding: 1rem; margin: 0 0 1rem; }
+  legend { padding: 0 .4rem; font-weight: 600; }
+  textarea { width: 100%; height: 9rem; font: 13px/1.4 ui-monospace, monospace; }
+  input[type=file] { margin-bottom: .5rem; }
+  button { min-height: 44px; padding: 0 1.2rem; font-size: 1rem; cursor: pointer;
+           background: #191b18; color: #fff; border: 0; }
+  button.sec { background: #fff; color: #191b18; border: 1px solid #191b18; }
+  .bad  { background: #fdecea; border-left: 4px solid #8e2c1f; padding: .7rem 1rem; }
+  .warn { background: #fff8e1; border-left: 4px solid #a67c00; padding: .7rem 1rem; }
+  .ok   { background: #eaf5ec; border-left: 4px solid #2c7a3d; padding: .7rem 1rem; }
+  pre { background: #f4f4f1; padding: .8rem; overflow-x: auto; font-size: 12px; }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+  th, td { border-bottom: 1px solid #ddd; padding: .45rem .3rem; text-align: left; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, 85mm);
+           gap: 6mm; margin-top: 1rem; }
+  .card { width: 85mm; height: 55mm; border: 1px dashed #bbb; padding: 4mm;
+          display: flex; gap: 4mm; align-items: center;
+          overflow: hidden; break-inside: avoid; }
+  .card .qrslot { flex: 0 0 38mm; line-height: 0; }
+  .card canvas { display: block; width: 38mm; height: 38mm; }
+  .card .meta { flex: 1 1 auto; min-width: 0; font-size: 8pt; line-height: 1.3; }
+  .card .sym { font-size: 20pt; }
+  @media print {
+    body { max-width: none; padding: 0; }
+    .noprint { display: none !important; }
+    .card { border-color: #eee; }
+  }
+</style>
+</head>
+<body>
+
+<div class="noprint">
+<h1>Spiel bauen</h1>
+<p>Erzeugt <code>data/game.json</code> und die druckfertigen QR-Karten.
+Die Route bestimmt die Wörter, das Paket den Inhalt. Solange die Route
+gleich bleibt, bleiben gedruckte Karten gültig.</p>
+
+<fieldset>
+  <legend>1 · Route</legend>
+  <input type="file" id="fRoute" accept=".json">
+  <textarea id="tRoute" placeholder="Inhalt von route.json"></textarea>
+</fieldset>
+
+<fieldset>
+  <legend>2 · Inhaltspaket</legend>
+  <input type="file" id="fPack" accept=".json">
+  <textarea id="tPack" placeholder="Inhalt von pack-....json"></textarea>
+</fieldset>
+
+<p>
+  <button id="go">Bauen</button>
+  <button id="demo" class="sec">Beispieldaten laden</button>
+</p>
+
+<div id="status"></div>
+</div>
+
+<div id="out"></div>
+
+<script type="module">
+import { buildGame, validate } from '../js/build.js';
+
+const $ = (id) => document.getElementById(id);
+const status = $('status');
+const out = $('out');
+
+function note(kind, html) {
+  status.insertAdjacentHTML('beforeend', `<p class="${kind}">${html}</p>`);
+}
+
+for (const [file, area] of [['fRoute', 'tRoute'], ['fPack', 'tPack']]) {
+  $(file).addEventListener('change', async (ev) => {
+    const f = ev.target.files[0];
+    if (f) $(area).value = await f.text();
+  });
+}
+
+$('demo').addEventListener('click', async () => {
+  status.innerHTML = '';
+  try {
+    const [r, p] = await Promise.all([
+      fetch('../content/route.example.json').then((x) => x.text()),
+      fetch('../content/pack-schweiz.example.json').then((x) => x.text())
+    ]);
+    $('tRoute').value = r;
+    $('tPack').value = p;
+    note('ok', 'Beispieldaten geladen.');
+  } catch {
+    note('bad', 'Beispieldaten nicht gefunden. Läuft diese Seite über einen Server?');
+  }
+});
+
+$('go').addEventListener('click', async () => {
+  status.innerHTML = '';
+  out.innerHTML = '';
+
+  let route, pack;
+  try { route = JSON.parse($('tRoute').value); }
+  catch (e) { return note('bad', 'Route ist kein gültiges JSON: ' + e.message); }
+  try { pack = JSON.parse($('tPack').value); }
+  catch (e) { return note('bad', 'Paket ist kein gültiges JSON: ' + e.message); }
+
+  const check = validate(route, pack);
+  if (check.errors.length) {
+    return note('bad', '<b>Abbruch:</b><br>' + check.errors.join('<br>'));
+  }
+
+  $('go').disabled = true;
+  note('ok', '<span id="prog">Verschlüssele …</span>');
+
+  try {
+    const { game, qr, warnings } = await buildGame(route, pack, {
+      onProgress: ({ done, total }) => {
+        const el = $('prog');
+        if (el) el.textContent = `Verschlüssele … ${done}/${total}`;
+      }
+    });
+
+    for (const w of warnings) note('warn', w);
+
+    const blob = new Blob([JSON.stringify(game, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    note('ok', `Fertig. <a href="${url}" download="game.json"><b>game.json herunterladen</b></a>
+                — Datei nach <code>data/game.json</code> legen und committen.`);
+
+    renderKeeper(qr, route);
+    await renderCards(qr, route);
+  } catch (e) {
+    note('bad', 'Build fehlgeschlagen: ' + e.message);
+  } finally {
+    $('go').disabled = false;
+  }
+});
+
+function renderKeeper(qr, route) {
+  out.insertAdjacentHTML('beforeend', `
+    <h2 class="noprint">Spielleiter-Liste</h2>
+    <p class="noprint"><b>Nicht an Spieler geben.</b> Ausdrucken und im
+       Umschlag mitnehmen: falls ein QR-Code beschädigt ist, kann das Wort
+       eingetippt werden.</p>
+    <table class="noprint">
+      <tr><th>Ort</th><th>Wort</th><th>Wo steht es</th></tr>
+      ${qr.map((q) => `<tr><td>${esc(q.label)}</td>
+        <td><code>${esc(q.word)}</code></td><td>${esc(q.found)}</td></tr>`).join('')}
+      ${route.finale?.word
+        ? `<tr><td><b>Schlussantwort</b></td><td><code>${esc(route.finale.word)}</code></td><td></td></tr>`
+        : ''}
+    </table>
+    <p class="noprint"><button class="sec" onclick="window.print()">Karten drucken</button></p>
+  `);
+}
+
+async function renderCards(qr, route) {
+  if (!route.baseUrl || route.baseUrl.includes('BENUTZERNAME')) {
+    note('warn', 'baseUrl in route.json ist noch ein Platzhalter – die QR-Codes zeigen ins Nichts.');
+  }
+
+  let QR;
+  try {
+    ({ default: QR } = await import('https://cdn.jsdelivr.net/npm/qrcode@1.5.4/+esm'));
+  } catch {
+    note('warn', 'QR-Bibliothek nicht erreichbar (offline?). Die URLs stehen unten als Text.');
+  }
+
+  // Symbole statt Nummern: bestätigen den Ort, verraten aber keine Reihenfolge.
+  const symbols = ['△', '◇', '○', '▽', '□', '✳', '◈'];
+
+  out.insertAdjacentHTML('beforeend', '<h2 class="noprint">Karten</h2><div class="cards" id="cards"></div>');
+  const grid = $('cards');
+
+  for (let i = 0; i < qr.length; i++) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="qrslot"></div>
+      <div class="meta">
+        <div class="sym">${symbols[i % symbols.length]}</div>
+        <div><b>Dorfgeschichte</b></div>
+        <div>Code scannen oder Wort eintippen.</div>
+        <div>Im Browser öffnen, nicht in der Scanner-App bleiben.</div>
+        ${i === 0 ? `<div>Startcode: <b>${esc(qr[i].word)}</b></div>` : ''}
+      </div>`;
+    grid.appendChild(card);
+
+    const slot = card.querySelector('.qrslot');
+    if (QR) {
+      const canvas = document.createElement('canvas');
+      await QR.toCanvas(canvas, qr[i].url, { width: 400, margin: 1 });
+      // Die Bibliothek schreibt style="width:400px" direkt ins Element.
+      // Inline-Styles schlagen das Stylesheet, also hier ueberschreiben.
+      canvas.style.width = '38mm';
+      canvas.style.height = '38mm';
+      slot.appendChild(canvas);
+    } else {
+      slot.innerHTML = `<code style="font-size:8pt;word-break:break-all">${esc(qr[i].url)}</code>`;
+    }
+  }
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+</script>
+</body>
+</html>

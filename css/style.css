@@ -1,0 +1,283 @@
+/* Entwurfsgrundlage: gelesen wird das einhändig, im Stehen, bei Tageslicht.
+   Der Himmel ist Kulisse, gelesen wird auf dem Papyrusblatt – heller Grund,
+   dunkle Tinte, weil weisse Schrift auf Blau in der Sonne verschwindet.
+   Keine Schrift aus dem Netz, das Spiel muss offline laufen. */
+
+:root {
+  --sky-top:   #7ba7c7;   /* Zenit */
+  --sky-mid:   #a9c9dd;
+  --sky-haze:  #d8e6ec;   /* Dunst am Horizont */
+  --cloud:     #ffffff;
+  --cloud-op:  0.62;
+
+  --papyrus:   #e9dcbe;   /* Blatt */
+  --papyrus-2: #e0cfa9;   /* Randschatten, Eingabefelder */
+  --fiber:     rgba(122, 88, 48, 0.07);
+
+  --ink:       #3a2716;   /* Eisengallustinte */
+  --ink-soft:  #6d5333;   /* Nebentext */
+  --leather:   #6b4a2b;   /* urchiges Braun, Knöpfe */
+  --seal:      #97402a;   /* Siegellack, Akzent */
+  --edge:      rgba(92, 62, 32, 0.38);
+
+  --serif: "Iowan Old Style", Palatino, "Book Antiqua", "Palatino Linotype",
+           Georgia, "Times New Roman", serif;
+  --sans:  system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sky-top:   #0d151d;
+    --sky-mid:   #121b23;
+    --sky-haze:  #1b2630;
+    --cloud:     #8ea6b8;
+    --cloud-op:  0.16;
+
+    --papyrus:   #241b11;   /* gealtertes Leder statt Blatt */
+    --papyrus-2: #2e2317;
+    --fiber:     rgba(233, 220, 190, 0.045);
+
+    --ink:       #e7dcc4;
+    --ink-soft:  #b6a583;
+    --leather:   #c9a271;
+    --seal:      #d0745a;
+    --edge:      rgba(233, 220, 190, 0.22);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { height: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100%;
+  color: var(--ink);
+  font: 1.0625rem/1.65 var(--serif);
+  -webkit-text-size-adjust: 100%;
+  background:
+    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 45%, var(--sky-haze) 100%)
+    fixed;
+}
+
+/* ---------------------------------------------------------------- Wolken */
+
+.sky {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cloud {
+  position: absolute;
+  color: var(--cloud);
+  opacity: var(--cloud-op);
+  will-change: transform;
+}
+
+.c1 { top:  4%; width: 62vw; animation: drift 190s linear infinite; }
+.c2 { top: 26%; width: 42vw; opacity: calc(var(--cloud-op) * 0.72);
+      animation: drift 280s linear infinite -60s; }
+.c3 { top: 62%; width: 78vw; opacity: calc(var(--cloud-op) * 0.45);
+      animation: drift 360s linear infinite -140s; }
+
+@keyframes drift {
+  from { transform: translateX(-85vw); }
+  to   { transform: translateX(105vw); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud { animation: none; }
+  .c1 { left: 8%; }  .c2 { left: 52%; }  .c3 { left: 20%; }
+}
+
+/* -------------------------------------------------------------- Struktur */
+
+#app {
+  position: relative;
+  z-index: 1;
+  max-width: 34rem;          /* ca. 70 Zeichen Zeilenlänge */
+  margin: 0 auto;
+  padding: 1.5rem 1rem 2.5rem;
+}
+
+header { margin-bottom: 1.1rem; }
+
+h1 {
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  margin: 0 0 0.1rem;
+  color: var(--ink);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.subtitle {
+  margin: 0;
+  font: italic 1rem/1.4 var(--serif);
+  color: var(--ink-soft);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+/* Das Blatt. Ungleichmässige Ecken und ein warmer Innenschatten lassen es
+   wie geschöpftes Papier wirken, ohne ein einziges Bild zu laden. */
+main {
+  position: relative;
+  background-color: var(--papyrus);
+  background-image:
+    repeating-linear-gradient(90deg, var(--fiber) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(0deg,  var(--fiber) 0 1px, transparent 1px 5px);
+  border: 1px solid var(--edge);
+  border-radius: 3px 20px 4px 16px / 16px 4px 18px 5px;
+  padding: 1.4rem 1.25rem;
+  box-shadow:
+    inset 0 0 30px rgba(107, 74, 43, 0.16),
+    0 6px 18px rgba(30, 50, 70, 0.22);
+}
+
+h2 {
+  font-size: 1.45rem;
+  font-weight: 400;
+  margin: 0 0 0.2rem;
+}
+
+h2 + p { margin-top: 0.6rem; }
+
+h3 {
+  font: 500 0.9375rem/1.3 var(--sans);
+  letter-spacing: 0.03em;
+  color: var(--seal);
+  margin: 0 0 0.45rem;
+}
+
+p { margin: 0 0 0.95rem; }
+main > *:last-child { margin-bottom: 0; }
+
+strong { font-weight: 600; }
+
+/* --------------------------------------------------------------- Auftrag */
+
+.task {
+  border-left: 4px solid var(--seal);
+  border-radius: 0;
+  background: rgba(151, 64, 42, 0.05);
+  padding: 0.9rem 0.9rem 0.9rem 1rem;
+  margin: 1.3rem 0;
+}
+.task.final { border-left-color: var(--leather); background: rgba(107, 74, 43, 0.06); }
+
+.where {
+  font: 0.9375rem/1.5 var(--sans);
+  color: var(--ink-soft);
+  margin-bottom: 0;
+}
+
+.fragment {
+  font: 0.9375rem var(--sans);
+  letter-spacing: 0.04em;
+  color: var(--seal);
+}
+
+/* -------------------------------------------------------------- Eingaben */
+
+.wordform {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.1rem 0 0;
+}
+
+input[type="text"] {
+  flex: 1 1 9rem;
+  min-width: 0;                /* sonst sprengt das Feld die Flexbox */
+  min-height: 48px;
+  padding: 0 0.75rem;
+  font: 1rem var(--sans);      /* 16px: darunter zoomt iOS beim Fokus */
+  color: var(--ink);
+  background: var(--papyrus-2);
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+}
+
+input[type="text"]::placeholder { color: var(--ink-soft); opacity: 0.75; }
+
+button {
+  min-height: 48px;
+  padding: 0 1.2rem;
+  font: 1rem var(--sans);
+  color: var(--papyrus);
+  background: var(--leather);
+  border: 1px solid var(--leather);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+button.primary { width: 100%; margin-top: 1.1rem; }
+
+button.quiet {
+  background: transparent;
+  color: var(--ink-soft);
+  border-color: var(--edge);
+}
+
+button[disabled], input[disabled] { opacity: 0.55; cursor: default; }
+
+:focus-visible { outline: 3px solid var(--seal); outline-offset: 2px; }
+
+.msg {
+  margin: 0.8rem 0 0;
+  font: 0.9375rem var(--sans);
+  color: var(--seal);
+}
+
+/* ------------------------------------------------------------- Restliches */
+
+details {
+  border-top: 1px solid var(--edge);
+  padding-top: 0.7rem;
+  margin-top: 1.3rem;
+}
+
+summary {
+  font: 1rem var(--sans);
+  color: var(--ink-soft);
+  cursor: pointer;
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+}
+
+.clue { border-top: 1px solid var(--edge); padding-top: 1rem; margin-top: 1rem; }
+.clue:first-of-type { border-top: 0; }
+
+#nav {
+  display: flex;
+  gap: 1.3rem;
+  margin-top: 1rem;
+  font: 0.9375rem var(--sans);
+}
+
+#nav a {
+  color: var(--ink-soft);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+footer {
+  margin-top: 1.2rem;
+  font: 0.8125rem/1.45 var(--sans);
+  color: var(--ink-soft);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.loading { color: var(--ink-soft); }
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
