@@ -1,49 +1,68 @@
-/* Entwurfsgrundlage: gelesen wird das einhändig, im Stehen, bei Tageslicht.
-   Der Himmel ist Kulisse, gelesen wird auf dem Papyrusblatt – heller Grund,
-   dunkle Tinte, weil weisse Schrift auf Blau in der Sonne verschwindet.
-   Keine Schrift aus dem Netz, das Spiel muss offline laufen. */
+/* ==========================================================================
+   Dorfgeschichte — Alhambra / andalusische Handschrift
+
+   Leitprinzip: Das Schriftfeld bleibt leer. Ornament sitzt im Rahmen und in
+   einem Zierband darüber, nie unter dem Text – so ist eine Nasriden-Seite
+   gebaut, und nur so bleibt sie einhändig in der Sonne lesbar.
+
+   Aufbau der Datei:
+     1  Tokens
+     2  Grundlagen
+     3  Typografie
+     4  Kopf
+     5  Das Blatt
+     6  Inhaltsblöcke
+     7  Bedienelemente
+     8  Navigation und Fuss
+     9  Hilfsklassen
+   ========================================================================== */
+
+/* == 1  Tokens ============================================================ */
 
 :root {
-  --sky-top:   #7ba7c7;   /* Zenit */
-  --sky-mid:   #a9c9dd;
-  --sky-haze:  #d8e6ec;   /* Dunst am Horizont */
-  --cloud:     #ffffff;
-  --cloud-op:  0.62;
+  /* Raum: Abendlicht auf rotem Sandstein */
+  --room:       #1a0f0c;
+  --room-glow:  rgba(96, 47, 31, 0.55);
 
-  --papyrus:   #e9dcbe;   /* Blatt */
-  --papyrus-2: #e0cfa9;   /* Randschatten, Eingabefelder */
-  --fiber:     rgba(122, 88, 48, 0.07);
+  /* Blatt */
+  --paper:      #f7efe0;
+  --paper-warm: rgba(138, 99, 39, 0.05);   /* diffuses Licht auf dem Papier */
 
-  --ink:       #3a2716;   /* Eisengallustinte */
-  --ink-soft:  #6d5333;   /* Nebentext */
-  --leather:   #6b4a2b;   /* urchiges Braun, Knöpfe */
-  --seal:      #97402a;   /* Siegellack, Akzent */
-  --edge:      rgba(92, 62, 32, 0.38);
+  /* Tinte */
+  --ink:        #2b1a12;
+  --ink-soft:   #5c4638;
 
-  --serif: "Iowan Old Style", Palatino, "Book Antiqua", "Palatino Linotype",
-           Georgia, "Times New Roman", serif;
-  --sans:  system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Gold in Schichten */
+  --gold-deep:  #8a6327;
+  --gold-mid:   #cda04d;
+  --gold-lit:   #f3d58a;
+  --gold-glow:  rgba(205, 160, 77, 0.30);
+
+  /* Ziegelrot */
+  --terracotta: #a85540;
+  --terra-dark: #6e3325;
+
+  --edge:       rgba(43, 26, 18, 0.28);
+
+  /* Schriften: einmal definiert, überall verwendet.
+     Damit gibt es keine wiederholten font-Blöcke weiter unten. */
+  --serif:      Cochin, "Iowan Old Style", Palatino, "Book Antiqua",
+                "Palatino Linotype", Georgia, "Times New Roman", serif;
+  --sans:       system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-label: 700 0.8125rem/1 var(--sans);      /* Knöpfe, Nav, Summary */
+  --font-meta:  0.9375rem/1.55 var(--sans);       /* Richtung, Meldungen */
+
+  --track-wide: 0.15em;                            /* Sperrung der Labels */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --sky-top:   #0d151d;
-    --sky-mid:   #121b23;
-    --sky-haze:  #1b2630;
-    --cloud:     #8ea6b8;
-    --cloud-op:  0.16;
-
-    --papyrus:   #241b11;   /* gealtertes Leder statt Blatt */
-    --papyrus-2: #2e2317;
-    --fiber:     rgba(233, 220, 190, 0.045);
-
-    --ink:       #e7dcc4;
-    --ink-soft:  #b6a583;
-    --leather:   #c9a271;
-    --seal:      #d0745a;
-    --edge:      rgba(233, 220, 190, 0.22);
+    --room:  #120805;
+    --paper: #eee3cd;
   }
 }
+
+/* == 2  Grundlagen ======================================================== */
 
 * { box-sizing: border-box; }
 
@@ -53,231 +72,367 @@ body {
   margin: 0;
   min-height: 100%;
   color: var(--ink);
-  font: 1.0625rem/1.65 var(--serif);
+  font: 1.125rem/1.7 var(--serif);
   -webkit-text-size-adjust: 100%;
-  background:
-    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 45%, var(--sky-haze) 100%)
-    fixed;
+  background-color: var(--room);
+  background-image:
+    radial-gradient(95% 55% at 50% 0%, var(--room-glow), transparent 70%),
+    linear-gradient(180deg, transparent 45%, rgba(0, 0, 0, 0.45) 100%);
+  background-attachment: fixed;
 }
-
-/* ---------------------------------------------------------------- Wolken */
-
-.sky {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.cloud {
-  position: absolute;
-  color: var(--cloud);
-  opacity: var(--cloud-op);
-  will-change: transform;
-}
-
-.c1 { top:  4%; width: 62vw; animation: drift 190s linear infinite; }
-.c2 { top: 26%; width: 42vw; opacity: calc(var(--cloud-op) * 0.72);
-      animation: drift 280s linear infinite -60s; }
-.c3 { top: 62%; width: 78vw; opacity: calc(var(--cloud-op) * 0.45);
-      animation: drift 360s linear infinite -140s; }
-
-@keyframes drift {
-  from { transform: translateX(-85vw); }
-  to   { transform: translateX(105vw); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cloud { animation: none; }
-  .c1 { left: 8%; }  .c2 { left: 52%; }  .c3 { left: 20%; }
-}
-
-/* -------------------------------------------------------------- Struktur */
 
 #app {
-  position: relative;
-  z-index: 1;
-  max-width: 34rem;          /* ca. 70 Zeichen Zeilenlänge */
+  max-width: 33rem;              /* ca. 66 Zeichen Zeilenlänge */
   margin: 0 auto;
-  padding: 1.5rem 1rem 2.5rem;
+  padding: 3rem 1rem;
 }
 
-header { margin-bottom: 1.1rem; }
+/* == 3  Typografie ======================================================== */
 
-h1 {
-  font-size: 2rem;
-  font-weight: 400;
-  letter-spacing: 0.01em;
-  margin: 0 0 0.1rem;
-  color: var(--ink);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-
-.subtitle {
-  margin: 0;
-  font: italic 1rem/1.4 var(--serif);
-  color: var(--ink-soft);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.28);
-}
-
-/* Das Blatt. Ungleichmässige Ecken und ein warmer Innenschatten lassen es
-   wie geschöpftes Papier wirken, ohne ein einziges Bild zu laden. */
-main {
-  position: relative;
-  background-color: var(--papyrus);
-  background-image:
-    repeating-linear-gradient(90deg, var(--fiber) 0 1px, transparent 1px 7px),
-    repeating-linear-gradient(0deg,  var(--fiber) 0 1px, transparent 1px 5px);
-  border: 1px solid var(--edge);
-  border-radius: 3px 20px 4px 16px / 16px 4px 18px 5px;
-  padding: 1.4rem 1.25rem;
-  box-shadow:
-    inset 0 0 30px rgba(107, 74, 43, 0.16),
-    0 6px 18px rgba(30, 50, 70, 0.22);
-}
+h1, h2 { font-weight: 400; margin: 0; }
 
 h2 {
-  font-size: 1.45rem;
-  font-weight: 400;
-  margin: 0 0 0.2rem;
+  font-size: 1.65rem;
+  line-height: 1.3;
+  margin-bottom: 0.8rem;
 }
 
-h2 + p { margin-top: 0.6rem; }
+/* Gesperrte Kapitälchen: Zwischentitel, Summary, Nav, Knöpfe teilen
+   dieselbe Grundform und stehen deshalb zusammen. */
+h3, summary, #nav a, button {
+  font: var(--font-label);
+  letter-spacing: var(--track-wide);
+  text-transform: uppercase;
+}
 
 h3 {
-  font: 500 0.9375rem/1.3 var(--sans);
-  letter-spacing: 0.03em;
-  color: var(--seal);
-  margin: 0 0 0.45rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--terra-dark);
+  margin: 0 0 0.85rem;
 }
 
-p { margin: 0 0 0.95rem; }
-main > *:last-child { margin-bottom: 0; }
+/* Kleine Goldraute vor dem Zwischentitel */
+h3::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  background: var(--gold-mid);
+  transform: rotate(45deg);
+}
 
-strong { font-weight: 600; }
+p { margin: 0 0 1.2rem; }
 
-/* --------------------------------------------------------------- Auftrag */
+strong { font-weight: 600; color: var(--terra-dark); }
+
+.where, .fragment, .msg { font: var(--font-meta); }
+.where   { color: var(--ink-soft); margin-bottom: 0; }
+.fragment { color: var(--terra-dark); font-weight: 500; letter-spacing: 0.08em; }
+.msg     { color: var(--terra-dark); font-weight: 500; margin: 1rem 0 0; }
+
+.loading { color: var(--ink-soft); }
+
+/* == 4  Kopf ============================================================== */
+
+header {
+  position: relative;
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+/* Grundfigur der Nasriden-Fliesen, blass hinter dem Titel */
+header::before {
+  content: "";
+  position: absolute;
+  top: -0.75rem;
+  left: 50%;
+  width: 160px;
+  height: 160px;
+  transform: translateX(-50%);
+  opacity: 0.1;
+  z-index: -1;
+  pointer-events: none;
+  background: no-repeat center/contain
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke='%23cda04d' stroke-width='1'%3E%3Cpath d='M50 0 100 50 50 100 0 50Z'/%3E%3Cpath d='M50 10 90 50 50 90 10 50Z'/%3E%3Ccircle cx='50' cy='50' r='20'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.eyebrow {
+  margin: 0 0 1rem;
+  font: 0.75rem var(--sans);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold-lit);
+  text-shadow: 0 0 10px var(--gold-glow);
+}
+
+/* Rückfallfarbe zuerst: ohne background-clip:text bliebe der Titel
+   transparent und damit unsichtbar. */
+h1 {
+  font-size: 2.4rem;
+  letter-spacing: 0.05em;
+  color: var(--gold-lit);
+}
+
+@supports ((background-clip: text) or (-webkit-background-clip: text)) {
+  h1 {
+    background-image: linear-gradient(135deg, var(--gold-lit),
+                                      var(--gold-mid) 50%, var(--gold-deep));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+  }
+}
+
+.rule {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 80%;
+  margin: 1.4rem auto 0;
+}
+
+.rule::before, .rule::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-mid), transparent);
+}
+
+.rule span {
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--gold-mid);
+  transform: rotate(45deg);
+}
+
+/* == 5  Das Blatt ========================================================= */
+
+/* Glattes Pergament. Kein gekacheltes Muster – nur Farbe und ein sehr
+   weiches Lichtfeld. Das Zierband sitzt oben, die zweite Goldlinie innen. */
+main {
+  position: relative;
+  padding: 3.25rem 1.9rem 2.5rem;   /* oben Platz für das Zierband */
+  background:
+    radial-gradient(120% 70% at 15% 0%, var(--paper-warm), transparent 60%)
+    var(--paper);
+  border: 1px solid var(--gold-deep);
+  box-shadow:
+    inset 0 0 0 7px var(--paper),          /* Luft zwischen den Linien */
+    inset 0 0 0 8px var(--gold-mid),       /* innere Goldlinie */
+    inset 0 1px 0 9px rgba(255, 255, 255, 0.5),
+    0 1px 0 var(--gold-lit),
+    0 20px 50px rgba(0, 0, 0, 0.7);
+}
+
+/* Zierband: verschränkte Rauten, endlos in der Breite. Sitzt im oberen
+   Freiraum und berührt keine Textzeile. */
+main::before {
+  content: "";
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  height: 16px;
+  opacity: 0.75;
+  pointer-events: none;
+  background: repeat-x center/20px 16px
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='16'%3E%3Cg fill='none' stroke='%238a6327' stroke-width='1'%3E%3Cpath d='M0 8h6M14 8h6'/%3E%3Cpath d='M10 3l4 5-4 5-4-5z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* == 6  Inhaltsblöcke ===================================================== */
 
 .task {
-  border-left: 4px solid var(--seal);
-  border-radius: 0;
-  background: rgba(151, 64, 42, 0.05);
-  padding: 0.9rem 0.9rem 0.9rem 1rem;
-  margin: 1.3rem 0;
-}
-.task.final { border-left-color: var(--leather); background: rgba(107, 74, 43, 0.06); }
-
-.where {
-  font: 0.9375rem/1.5 var(--sans);
-  color: var(--ink-soft);
-  margin-bottom: 0;
+  position: relative;
+  padding: 1.5rem 0;
+  margin: 2.1rem 0;
+  border-top: 1px solid var(--gold-mid);
+  border-bottom: 1px solid var(--gold-mid);
 }
 
-.fragment {
-  font: 0.9375rem var(--sans);
-  letter-spacing: 0.04em;
-  color: var(--seal);
+/* Raute, die die obere Linie unterbricht */
+.task::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  background: var(--gold-mid);
+  box-shadow: 0 0 0 5px var(--paper);
+  transform: rotate(45deg);
 }
 
-/* -------------------------------------------------------------- Eingaben */
+.task.final { border-color: var(--edge); }
+.task.final::before { background: var(--terra-dark); }
+
+details {
+  margin-top: 2.1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--edge);
+}
+
+summary {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--terra-dark);
+  cursor: pointer;
+  list-style: none;
+}
+
+summary::-webkit-details-marker { display: none; }
+
+/* Dreieck als Form, nicht als Schriftzeichen */
+summary::before {
+  content: "";
+  flex: 0 0 auto;
+  margin-right: 0.6rem;
+  border-left: 6px solid var(--gold-mid);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  transition: transform 0.2s ease;
+}
+
+details[open] summary::before { transform: rotate(90deg); }
+details p { margin: 0.8rem 0 0; }
+
+.clue {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed var(--gold-mid);
+}
+
+.clue:first-of-type { margin-top: 0; padding-top: 0; border-top: 0; }
+
+main > :last-child { margin-bottom: 0; }
+
+/* == 7  Bedienelemente ==================================================== */
 
 .wordform {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 1.1rem 0 0;
+  gap: 0.8rem;
+  margin: 1.7rem 0 0;
 }
 
 input[type="text"] {
   flex: 1 1 9rem;
-  min-width: 0;                /* sonst sprengt das Feld die Flexbox */
-  min-height: 48px;
-  padding: 0 0.75rem;
-  font: 1rem var(--sans);      /* 16px: darunter zoomt iOS beim Fokus */
+  min-width: 0;                  /* sonst sprengt das Feld die Flexbox */
+  min-height: 50px;
+  padding: 0 1rem;
+  font: 1rem var(--sans);        /* 16px: darunter zoomt iOS beim Fokus */
+  letter-spacing: 0.04em;
   color: var(--ink);
-  background: var(--papyrus-2);
-  border: 1px solid var(--edge);
-  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.35);
+  border: 0;
+  border-bottom: 2px solid var(--gold-deep);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
-input[type="text"]::placeholder { color: var(--ink-soft); opacity: 0.75; }
+input[type="text"]::placeholder { color: var(--ink-soft); opacity: 0.6; }
+
+input[type="text"]:focus {
+  background: rgba(255, 255, 255, 0.6);
+  border-bottom-color: var(--terracotta);
+}
 
 button {
-  min-height: 48px;
-  padding: 0 1.2rem;
-  font: 1rem var(--sans);
-  color: var(--papyrus);
-  background: var(--leather);
-  border: 1px solid var(--leather);
-  border-radius: 2px;
+  min-height: 50px;
+  padding: 0 1.7rem;
+  color: var(--paper);
+  background: linear-gradient(180deg, var(--terracotta), var(--terra-dark));
+  border: 1px solid var(--gold-deep);
   cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-button.primary { width: 100%; margin-top: 1.1rem; }
+button.primary { width: 100%; margin-top: 1.9rem; }
 
 button.quiet {
-  background: transparent;
   color: var(--ink-soft);
+  background: none;
   border-color: var(--edge);
+  font-weight: 400;
+  box-shadow: none;
 }
 
-button[disabled], input[disabled] { opacity: 0.55; cursor: default; }
+button:active { transform: translateY(1px); box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); }
 
-:focus-visible { outline: 3px solid var(--seal); outline-offset: 2px; }
+button[disabled], input[disabled] { opacity: 0.5; cursor: default; }
 
-.msg {
-  margin: 0.8rem 0 0;
-  font: 0.9375rem var(--sans);
-  color: var(--seal);
+:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 3px; }
+
+/* Hover nur mit echtem Zeiger: auf Touchgeräten bleibt der Zustand
+   sonst nach dem Antippen hängen. */
+@media (hover: hover) {
+  button:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); }
+  button.quiet:hover { background: rgba(0, 0, 0, 0.05); transform: none; }
+  #nav a:hover { opacity: 1; }
+  #nav a:hover::after { width: 100%; }
 }
 
-/* ------------------------------------------------------------- Restliches */
-
-details {
-  border-top: 1px solid var(--edge);
-  padding-top: 0.7rem;
-  margin-top: 1.3rem;
-}
-
-summary {
-  font: 1rem var(--sans);
-  color: var(--ink-soft);
-  cursor: pointer;
-  min-height: 2.75rem;
-  display: flex;
-  align-items: center;
-}
-
-.clue { border-top: 1px solid var(--edge); padding-top: 1rem; margin-top: 1rem; }
-.clue:first-of-type { border-top: 0; }
+/* == 8  Navigation und Fuss =============================================== */
 
 #nav {
   display: flex;
-  gap: 1.3rem;
-  margin-top: 1rem;
-  font: 0.9375rem var(--sans);
+  justify-content: center;
+  gap: 2.5rem;
+  margin-top: 2rem;
 }
 
 #nav a {
-  color: var(--ink-soft);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+  position: relative;
+  padding-bottom: 4px;
+  color: var(--gold-lit);
+  opacity: 0.9;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  transition: opacity 0.3s ease;
 }
+
+#nav a::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--gold-lit);
+  transition: width 0.3s ease;
+}
+
+#nav a:focus-visible::after { width: 100%; }
 
 footer {
-  margin-top: 1.2rem;
-  font: 0.8125rem/1.45 var(--sans);
-  color: var(--ink-soft);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+  margin-top: 2rem;
+  text-align: center;
+  font: 0.75rem/1.5 var(--sans);
+  letter-spacing: 0.05em;
+  color: var(--paper);
+  opacity: 0.55;
 }
 
-.loading { color: var(--ink-soft); }
+/* == 9  Hilfsklassen ====================================================== */
 
 .sr-only {
   position: absolute;
-  width: 1px; height: 1px;
+  width: 1px;
+  height: 1px;
   overflow: hidden;
   clip-path: inset(50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+  button:active, button:hover { transform: none; }
 }
