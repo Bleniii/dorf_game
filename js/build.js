@@ -84,7 +84,8 @@ export async function buildGame(route, pack, { onProgress } = {}) {
       raetsel: source.raetsel ?? '',
       richtung: source.richtung ?? '',
       tipp: source.tipp ?? '',
-      fragment: source.fragment ?? ''
+      fragment: source.fragment ?? '',
+      medien: Array.isArray(source.medien) ? source.medien : []
     };
     if (isLast && (source.finalFrage || pack.finale)) {
       payload.finalFrage = source.finalFrage ?? '';

@@ -13,8 +13,9 @@
      5  Das Blatt
      6  Inhaltsblöcke
      7  Bedienelemente
-     8  Navigation und Fuss
-     9  Hilfsklassen
+     8  Medien
+     9  Navigation und Fuss
+    10  Hilfsklassen
    ========================================================================== */
 
 /* == 1  Tokens ============================================================ */
@@ -380,7 +381,149 @@ button[disabled], input[disabled] { opacity: 0.5; cursor: default; }
   #nav a:hover::after { width: 100%; }
 }
 
-/* == 8  Navigation und Fuss =============================================== */
+/* == 8  Medien =========================================================== */
+
+.medien {
+  display: grid;
+  gap: 1.3rem;
+  margin-top: 1.4rem;
+}
+
+.medium { margin: 0; }
+
+.medium img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--gold-deep);
+}
+
+figcaption {
+  margin-top: 0.5rem;
+  font: var(--font-meta);
+  color: var(--ink-soft);
+}
+
+/* Bildknopf und Lupenschalter sind Knöpfe – hier werden die
+   Knopfvorgaben aus Abschnitt 7 gezielt zurückgenommen. */
+.bildknopf {
+  display: block;
+  width: 100%;
+  min-height: 0;
+  padding: 0;
+  color: inherit;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  letter-spacing: normal;
+  text-transform: none;
+  cursor: zoom-in;
+}
+
+/* -- Lupe ---------------------------------------------------------------- */
+
+.lupe-buehne {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Die Unschärfe liegt nur auf dem <img>. Die Linse zeigt dasselbe Bild
+   als Hintergrund und bleibt deshalb gestochen scharf. */
+.lupe .lupe-buehne img {
+  filter: blur(var(--unschaerfe, 2.2px));
+  transition: filter 0.25s ease;
+}
+
+.lupe.aktiv .lupe-buehne {
+  touch-action: none;          /* sonst scrollt die Seite unter dem Finger */
+  cursor: none;
+}
+
+.linse {
+  position: absolute;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  border: 2px solid var(--gold-mid);
+  background-repeat: no-repeat;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.45),
+    0 8px 22px rgba(0, 0, 0, 0.5),
+    inset 0 0 14px rgba(0, 0, 0, 0.35);
+}
+
+.lupe-schalter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.8rem;
+}
+
+.lupe-schalter[aria-pressed="true"] {
+  box-shadow: inset 0 2px 7px rgba(0, 0, 0, 0.45);
+}
+
+/* Lupensymbol aus zwei Formen statt aus einem Schriftzeichen */
+.lupe-icon {
+  position: relative;
+  width: 13px;
+  height: 13px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.lupe-icon::after {
+  content: "";
+  position: absolute;
+  right: -5px;
+  bottom: -4px;
+  width: 7px;
+  height: 2px;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+
+/* -- Zoomansicht --------------------------------------------------------- */
+
+.zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  background: rgba(12, 6, 4, 0.95);
+}
+
+.zoom[hidden] { display: none; }
+
+.zoom-buehne {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.zoom-buehne img {
+  max-width: 100%;
+  max-height: 100%;
+  transform-origin: center;
+  will-change: transform;
+  cursor: grab;
+}
+
+.zoom-leiste {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.9rem 0.9rem calc(0.9rem + env(safe-area-inset-bottom));
+}
+
+body.zoom-offen { overflow: hidden; }
+
+/* == 9  Navigation und Fuss =============================================== */
 
 #nav {
   display: flex;
@@ -422,7 +565,7 @@ footer {
   opacity: 0.55;
 }
 
-/* == 9  Hilfsklassen ====================================================== */
+/* == 10 Hilfsklassen ====================================================== */
 
 .sr-only {
   position: absolute;

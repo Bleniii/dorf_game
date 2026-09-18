@@ -1,4 +1,5 @@
 import { normalize, decryptBlock, secretFor, KDF_ITERATIONS } from './crypto.js';
+import { renderMedien, initMedien } from './medien.js';
 
 const GAME_URL = 'data/game.json';
 const KEY_STATE = 'dorfspiel.state.v1';
@@ -120,6 +121,7 @@ function screenStation() {
     <div class="task">
       <h3>Dein Auftrag</h3>
       ${rich(p.raetsel)}
+      ${renderMedien(p.medien)}
       ${p.richtung ? `<p class="where">${esc(p.richtung)}</p>` : ''}
     </div>
     ${p.tipp ? `<details><summary>Tipp</summary>${rich(p.tipp)}</details>` : ''}
@@ -201,6 +203,9 @@ function render() {
   const nav = document.getElementById('nav');
   const showNav = state.started && view.screen !== 'error';
   nav.hidden = !showNav;
+
+  // Bilder und Lupen brauchen nach jedem Neuzeichnen ihre Ereignisse zurück.
+  initMedien(el);
 
   const input = el.querySelector('#word');
   if (input && !busy) input.focus({ preventScroll: true });

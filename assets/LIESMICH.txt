@@ -1,0 +1,9 @@
+Hier kommen die Bilddateien hin, die in den Inhaltspaketen unter
+"medien" referenziert werden.
+
+Empfehlung: zufällige Dateinamen (z.B. 7c1f4a90.png). GitHub Pages
+listet Verzeichnisse nicht auf, damit sind die Bilder ohne gelöste
+Station nicht auffindbar.
+
+Vor dem Hochladen verkleinern: Breite 1400 px reicht, als WebP bei
+Qualität 80 sind das meist unter 200 KB statt mehrerer MB.
